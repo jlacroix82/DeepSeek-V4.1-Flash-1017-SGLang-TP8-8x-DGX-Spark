@@ -36,7 +36,7 @@ The measured ring was restored from retained per-node containers and images. All
 | Fresh ARM64 serving-image build from this port | NOT_RUN; no serving build authorized by repo setup |
 | Fresh eight-node load, all-rank smoke and generation | NOT_RUN |
 | Rebenchmark of newly built image/profile | NOT_RUN |
-| Public GitHub visibility/forum announcement | Not authorized by creation of this private review repo |
+| Public GitHub visibility/forum announcement | Owner-authorized publication; verify the live repository/topic separately |
 
 A fresh-build failure is not being hidden: these gates have not been attempted. A future qualification should bind exact image IDs, effective model/Engram/template inputs, request generator, all-rank health, tool behavior and performance to the new build before promotion.
 

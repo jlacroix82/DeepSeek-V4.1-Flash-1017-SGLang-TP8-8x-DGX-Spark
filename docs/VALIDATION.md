@@ -19,6 +19,6 @@ The public source/configuration and fixture check did not download weights, buil
 - Fresh ARM64/CUDA serving-image build and verification of byte-equivalence to retained measured images.
 - New eight-node model load, native/API/tool qualification and rebenchmark on that rebuilt image.
 - Auth/proxy provisioning for another operator's network.
-- Public repository promotion or a forum post.
+- Public repository promotion/forum posting were separate publication steps, not part of the original CPU/runtime validation above.
 
 GitHub Actions runs the CPU/metric/example-plan/checksum checks. Its remote run status is separate from the local results above and should be checked before review/promotion. Full binary/runtime equivalence remains explicitly unestablished; see PROVENANCE.md.

@@ -1,6 +1,6 @@
 # Scope and safe handling
 
-This is a private review-stage recipe/results repository. Do not change visibility or post the forum draft until its owner approves publication.
+The owner has authorized public release of this recipe/results repository and a concise NVIDIA forum announcement. The portable serving recipe remains review-stage; publication is not native deployment qualification.
 
 - Never commit actual host addresses, user home paths, API keys, access tokens, SSH keys, passwords, raw private Docker inspect output or protected environment files.
 - Use the documented example configuration and keep edited local profiles ignored by Git. The recipe helper refuses inline secret values; it does not provision endpoint authentication.
