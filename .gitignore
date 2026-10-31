@@ -1,0 +1,16 @@
+.env*
+.runtime/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+state*/
+logs*/
+private/
+build/
+*.log
+*.key
+*api-key*
+*.zip
+*.tar
+*.tar.gz

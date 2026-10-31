@@ -1,0 +1,72 @@
+{
+  "scope": "Effective shared numeric environment from the preserved measured TP8 containers; not a promise every variable is forwarded by the portable launcher.",
+  "recipe_upstream_commit": "64b02dea8681fb1d8e3a659ea432a8e9e9ba3995",
+  "upstream_dockerfile_sha256": "825a07a05b013ab2c15562d0a7c3fc7cc63df2c225464412384b37690d50597d",
+  "shared_numeric_environment": {
+    "DSV41_LOOP_REPEATS": "4",
+    "DSV41_LOOP_LINE_REPEATS": "8",
+    "DSV41_STATS_SECONDS": "60",
+    "DSV41_WO_A_W8": "0",
+    "DSV41_WO_A_W8_MID": "0",
+    "SGLANG_FLASHINFER_MOE_FUSED_FINALIZE": "0",
+    "DSV41_SERIAL_WEIGHT_LOAD": "0",
+    "SGLANG_ENABLE_TP_MEMORY_INBALANCE_CHECK": "0",
+    "DSV41_IO_THREADS": "96",
+    "DSV41_CACHE_WAYS": "4",
+    "DSV41_WO_A_W8_DROP": "0",
+    "DSV41_VERIFY_CAP": "0",
+    "DSV41_LOOP_NGRAM": "32",
+    "DSV41_TP_PAD": "0",
+    "DSV41_DRAFT_TAU": "1",
+    "DSV41_LOOP_ABORT": "1",
+    "SGLANG_ENABLE_DSV41_ENGRAM_HOST_TABLE": "0",
+    "DSV41_DRAFT_HEAD_FP8": "0",
+    "DSV41_ENGRAM_PREFETCH_CHECK": "0",
+    "SGLANG_DSPARK_ENABLE_SPS_RECORD": "0",
+    "DSV41_BLOCK_VERIFY": "0",
+    "DSV41_FOLDED_FENCE": "0",
+    "DSV41_RESIDENT_SCALES": "0",
+    "DSV41_WO_A_W8_DRAFT": "0",
+    "DSV41_ENGRAM_PREFETCH": "0",
+    "SGLANG_DSV41_REASONING_EFFORT": "75",
+    "DSV41_CACHE_GIB": "0",
+    "SGLANG_ROCE_ALLREDUCE": "1",
+    "DSV41_AUTOTUNE_KEEP": "0",
+    "DSPARK_BLOCK_SIZE": "5"
+  },
+  "measured_container_images": [
+    {
+      "role": "worker",
+      "image_id": "sha256:5efe913895ad9fb8816cd23104c93e601199f41a1f04e215de3ab50908b3b463"
+    },
+    {
+      "role": "worker",
+      "image_id": "sha256:baebc11a24f689773f7f38637a28377d314b698b6f262cecfc1a2fce4c8bd0d0"
+    },
+    {
+      "role": "worker",
+      "image_id": "sha256:b667a7ce39aa82aa2625d85ea206863e23c9003e562933674fb96f8d5f0a3bb6"
+    },
+    {
+      "role": "worker",
+      "image_id": "sha256:4529a5c6b12a09dc1afdc6c82087e685ef4114014464a687a84dce270c81c593"
+    },
+    {
+      "role": "head",
+      "image_id": "sha256:ef1107b293c1ff16edf98701d6a2fc07b468e8d485b0a58114912fae811e83f5"
+    },
+    {
+      "role": "worker",
+      "image_id": "sha256:edd49079ca12f0558884d114787734939a94e0be707c3120e15738e5c3276c15"
+    },
+    {
+      "role": "worker",
+      "image_id": "sha256:af38b278ab4d33af0dd2248c0f94a0bb1c545e168402adb4a4c3c2ba9e066f59"
+    },
+    {
+      "role": "worker",
+      "image_id": "sha256:df65694ac011299203eeb39d80e16d02bc57bf44c95ccbb9ab05b2ba40e200fc"
+    }
+  ],
+  "provenance_gap": "Per-node measured image IDs differ. Fresh rebuilding the public Dockerfile at the pinned source does not prove byte-identical images or benchmark equivalence. Native fresh-build/deployment qualification is NOT_RUN."
+}

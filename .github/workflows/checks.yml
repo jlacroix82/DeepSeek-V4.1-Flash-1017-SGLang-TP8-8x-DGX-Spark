@@ -1,0 +1,21 @@
+name: CPU recipe and saved-results checks
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  offline-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout pinned action
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4, resolved at repository setup
+      - name: CPU-only recipe and arithmetic tests
+        run: python3 -m unittest discover -s tests -v
+      - name: Recompute all saved matrix coordinates
+        run: python3 tools/check_results.py
+      - name: Safe example plan only
+        run: python3 tools/recipe.py plan --env-file config/tp8.env.example
+      - name: Verify committed payload integrity
+        run: sha256sum --check CHECKSUMS.sha256

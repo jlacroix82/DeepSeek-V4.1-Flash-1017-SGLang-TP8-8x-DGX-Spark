@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="850" height="390" viewBox="0 0 850 390">
+<rect width="100%" height="100%" fill="#0b1220"/>
+<text x="25" y="30" font-family="sans-serif" font-size="19" fill="#f5f8ff">Actual batch output throughput — prose</text>
+<text x="180" y="65" fill="#bbc9da" font-family="sans-serif">C=1</text>
+<text x="305" y="65" fill="#bbc9da" font-family="sans-serif">C=2</text>
+<text x="430" y="65" fill="#bbc9da" font-family="sans-serif">C=4</text>
+<text x="555" y="65" fill="#bbc9da" font-family="sans-serif">C=6</text>
+<text x="680" y="65" fill="#bbc9da" font-family="sans-serif">C=8</text>
+<text x="20" y="110" fill="#bbc9da" font-family="sans-serif">2,048 input</text>
+<rect x="150" y="85" width="118" height="38" rx="4" fill="#00cde2" fill-opacity="0.304"/>
+<text x="162" y="110" font-family="monospace" font-size="14" fill="white">52.02</text>
+<rect x="275" y="85" width="118" height="38" rx="4" fill="#00cde2" fill-opacity="0.436"/>
+<text x="287" y="110" font-family="monospace" font-size="14" fill="white">84.56</text>
+<rect x="400" y="85" width="118" height="38" rx="4" fill="#00cde2" fill-opacity="0.568"/>
+<text x="412" y="110" font-family="monospace" font-size="14" fill="white">117.50</text>
+<rect x="525" y="85" width="118" height="38" rx="4" fill="#00cde2" fill-opacity="0.707"/>
+<text x="537" y="110" font-family="monospace" font-size="14" fill="white">151.89</text>
+<rect x="650" y="85" width="118" height="38" rx="4" fill="#00cde2" fill-opacity="0.800"/>
+<text x="662" y="110" font-family="monospace" font-size="14" fill="white">174.95</text>
+<text x="20" y="153" fill="#bbc9da" font-family="sans-serif">8,192 input</text>
+<rect x="150" y="128" width="118" height="38" rx="4" fill="#00cde2" fill-opacity="0.294"/>
+<text x="162" y="153" font-family="monospace" font-size="14" fill="white">49.51</text>
+<rect x="275" y="128" width="118" height="38" rx="4" fill="#00cde2" fill-opacity="0.399"/>
+<text x="287" y="153" font-family="monospace" font-size="14" fill="white">75.36</text>
+<rect x="400" y="128" width="118" height="38" rx="4" fill="#00cde2" fill-opacity="0.510"/>
+<text x="412" y="153" font-family="monospace" font-size="14" fill="white">102.89</text>
+<rect x="525" y="128" width="118" height="38" rx="4" fill="#00cde2" fill-opacity="0.602"/>
+<text x="537" y="153" font-family="monospace" font-size="14" fill="white">125.72</text>
+<rect x="650" y="128" width="118" height="38" rx="4" fill="#00cde2" fill-opacity="0.667"/>
+<text x="662" y="153" font-family="monospace" font-size="14" fill="white">142.08</text>
+<text x="20" y="196" fill="#bbc9da" font-family="sans-serif">32,768 input</text>
+<rect x="150" y="171" width="118" height="38" rx="4" fill="#00cde2" fill-opacity="0.255"/>
+<text x="162" y="196" font-family="monospace" font-size="14" fill="white">39.63</text>
+<rect x="275" y="171" width="118" height="38" rx="4" fill="#00cde2" fill-opacity="0.304"/>
+<text x="287" y="196" font-family="monospace" font-size="14" fill="white">51.83</text>
+<rect x="400" y="171" width="118" height="38" rx="4" fill="#00cde2" fill-opacity="0.355"/>
+<text x="412" y="196" font-family="monospace" font-size="14" fill="white">64.66</text>
+<rect x="525" y="171" width="118" height="38" rx="4" fill="#00cde2" fill-opacity="0.389"/>
+<text x="537" y="196" font-family="monospace" font-size="14" fill="white">73.02</text>
+<rect x="650" y="171" width="118" height="38" rx="4" fill="#00cde2" fill-opacity="0.409"/>
+<text x="662" y="196" font-family="monospace" font-size="14" fill="white">77.93</text>
+<text x="20" y="239" fill="#bbc9da" font-family="sans-serif">65,536 input</text>
+<rect x="150" y="214" width="118" height="38" rx="4" fill="#00cde2" fill-opacity="0.212"/>
+<text x="162" y="239" font-family="monospace" font-size="14" fill="white">29.16</text>
+<rect x="275" y="214" width="118" height="38" rx="4" fill="#00cde2" fill-opacity="0.243"/>
+<text x="287" y="239" font-family="monospace" font-size="14" fill="white">36.73</text>
+<rect x="400" y="214" width="118" height="38" rx="4" fill="#00cde2" fill-opacity="0.265"/>
+<text x="412" y="239" font-family="monospace" font-size="14" fill="white">42.35</text>
+<rect x="525" y="214" width="118" height="38" rx="4" fill="#00cde2" fill-opacity="0.282"/>
+<text x="537" y="239" font-family="monospace" font-size="14" fill="white">46.37</text>
+<rect x="650" y="214" width="118" height="38" rx="4" fill="#00cde2" fill-opacity="0.287"/>
+<text x="662" y="239" font-family="monospace" font-size="14" fill="white">47.79</text>
+<text x="20" y="282" fill="#bbc9da" font-family="sans-serif">100,000 input</text>
+<rect x="150" y="257" width="118" height="38" rx="4" fill="#00cde2" fill-opacity="0.190"/>
+<text x="162" y="282" font-family="monospace" font-size="14" fill="white">23.56</text>
+<rect x="275" y="257" width="118" height="38" rx="4" fill="#00cde2" fill-opacity="0.203"/>
+<text x="287" y="282" font-family="monospace" font-size="14" fill="white">26.96</text>
+<rect x="400" y="257" width="118" height="38" rx="4" fill="#00cde2" fill-opacity="0.216"/>
+<text x="412" y="282" font-family="monospace" font-size="14" fill="white">30.18</text>
+<rect x="525" y="257" width="118" height="38" rx="4" fill="#00cde2" fill-opacity="0.223"/>
+<text x="537" y="282" font-family="monospace" font-size="14" fill="white">31.87</text>
+<rect x="650" y="257" width="118" height="38" rx="4" fill="#00cde2" fill-opacity="0.228"/>
+<text x="662" y="282" font-family="monospace" font-size="14" fill="white">32.95</text>
+<text x="20" y="325" fill="#bbc9da" font-family="sans-serif">200,000 input</text>
+<rect x="150" y="300" width="118" height="38" rx="4" fill="#00cde2" fill-opacity="0.150"/>
+<text x="162" y="325" font-family="monospace" font-size="14" fill="white">13.70</text>
+<rect x="275" y="300" width="118" height="38" rx="4" fill="#00cde2" fill-opacity="0.153"/>
+<text x="287" y="325" font-family="monospace" font-size="14" fill="white">14.50</text>
+<rect x="400" y="300" width="118" height="38" rx="4" fill="#00cde2" fill-opacity="0.157"/>
+<text x="412" y="325" font-family="monospace" font-size="14" fill="white">15.52</text>
+<rect x="525" y="300" width="118" height="38" rx="4" fill="#00cde2" fill-opacity="0.158"/>
+<text x="537" y="325" font-family="monospace" font-size="14" fill="white">15.70</text>
+<rect x="650" y="300" width="118" height="38" rx="4" fill="#00cde2" fill-opacity="0.159"/>
+<text x="662" y="325" font-family="monospace" font-size="14" fill="white">16.03</text>
+<text x="25" y="375" fill="#bbc9da" font-family="sans-serif" font-size="12">Output tokens / whole wave wall; includes prefill and queuing. Descriptive small-sample results; no code-quality claim.</text></svg>

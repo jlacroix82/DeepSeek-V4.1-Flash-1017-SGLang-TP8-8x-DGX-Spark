@@ -1,0 +1,69 @@
+diff --git a/start.sh b/start.sh
+index 3ba1e64..0f9bf7b 100755
+--- a/start.sh
++++ b/start.sh
+@@ -358,6 +358,7 @@ docker_common_args() {
+     -e "NCCL_DEBUG=$NCCL_DEBUG"
+     -e "NCCL_BUFFSIZE=${NCCL_BUFFSIZE:-4194304}"
+     -e "NCCL_LL128_BUFFSIZE=${NCCL_LL128_BUFFSIZE:--2}"
++    -e "SGLANG_ROCE_ALLREDUCE=${SGLANG_ROCE_ALLREDUCE:-0}"
+     -e "NCCL_PROTO=${NCCL_PROTO:-LL,LL128,Simple}"
+     -e "NCCL_MAX_NCHANNELS=${NCCL_MAX_NCHANNELS:-32}"
+     -e "NCCL_DEBUG_SUBSYS=${NCCL_DEBUG_SUBSYS:-INIT}"
+@@ -372,6 +373,8 @@ docker_common_args() {
+     -e "PYTORCH_CUDA_ALLOC_CONF=${PYTORCH_CUDA_ALLOC_CONF:-expandable_segments:False}"
+     -e "CUDA_DEVICE_ORDER=PCI_BUS_ID"
+     -e "SGLANG_ENABLE_DSV41_ENGRAM_HOST_TABLE=0"
++    -e "SGLANG_DSPARK_ENABLE_SPS_RECORD=${SGLANG_DSPARK_ENABLE_SPS_RECORD:-0}"
++    -e "SGLANG_ENABLE_TP_MEMORY_INBALANCE_CHECK=${SGLANG_ENABLE_TP_MEMORY_INBALANCE_CHECK:-1}"
+     -e "DSV41_TP_PAD=${DSV41_TP_PAD:-1}"
+     -e "VLLM_HOST_IP=$hip"
+     -e "HOST_IP=$hip"
+@@ -509,6 +512,7 @@ worker_env_lines() {
+     -e "NCCL_DEBUG=$NCCL_DEBUG"
+     -e "NCCL_BUFFSIZE=${NCCL_BUFFSIZE:-4194304}"
+     -e "NCCL_LL128_BUFFSIZE=${NCCL_LL128_BUFFSIZE:--2}"
++    -e "SGLANG_ROCE_ALLREDUCE=${SGLANG_ROCE_ALLREDUCE:-0}"
+     -e "NCCL_PROTO=${NCCL_PROTO:-LL,LL128,Simple}"
+     -e "NCCL_MAX_NCHANNELS=${NCCL_MAX_NCHANNELS:-32}"
+     -e "NCCL_DEBUG_SUBSYS=${NCCL_DEBUG_SUBSYS:-INIT}"
+@@ -524,6 +528,8 @@ worker_env_lines() {
+     -e "NCCL_IB_GID_INDEX=$wgid"
+     -e "CUDA_DEVICE_ORDER=PCI_BUS_ID"
+     -e "SGLANG_ENABLE_DSV41_ENGRAM_HOST_TABLE=0"
++    -e "SGLANG_DSPARK_ENABLE_SPS_RECORD=${SGLANG_DSPARK_ENABLE_SPS_RECORD:-0}"
++    -e "SGLANG_ENABLE_TP_MEMORY_INBALANCE_CHECK=${SGLANG_ENABLE_TP_MEMORY_INBALANCE_CHECK:-1}"
+     -e "DSV41_TP_PAD=${DSV41_TP_PAD:-1}"
+     -e "HOST_IP=$wip"
+     -e "VLLM_HOST_IP=$wip"
+@@ -717,7 +723,13 @@ cmd_build() {
+   if [[ "${DSV41_LAUNCHER:-}" == tp4 ]]; then
+     docker build -f "$ROOT/$dockerfile" -t "$IMAGE" $build_args "$ROOT"
+   else
+-    docker build -t "$IMAGE" "$ROOT"
++    if [[ -n "${BUILD_DOCKERFILE:-}" ]]; then
++      [[ "$BUILD_DOCKERFILE" == /* ]] && die "BUILD_DOCKERFILE must be inside the repository (got $BUILD_DOCKERFILE)"
++      [[ -f "$ROOT/$BUILD_DOCKERFILE" ]] || die "no such Dockerfile: $ROOT/$BUILD_DOCKERFILE"
++      docker build -f "$ROOT/$BUILD_DOCKERFILE" -t "$IMAGE" "$ROOT"
++    else
++      docker build -t "$IMAGE" "$ROOT"
++    fi
+   fi
+   local img_arch
+   img_arch=$(docker image inspect -f '{{.Architecture}}' "$IMAGE")
+@@ -753,10 +765,14 @@ cmd_build() {
+         -e "$(ssh_rsync_e)" \
+         "$ROOT/" "${WORKER_USER:+${WORKER_USER}@}${h}:${WORKER_DIR}/"
+       # end-rsync-start
++      local buildf=""
++      if [[ -n "${BUILD_DOCKERFILE:-}" ]]; then
++        buildf="-f $(printf '%q' "$BUILD_DOCKERFILE")"
++      fi
+       info "docker build on $h ..."
+       remote_on "$h" --timeout "${BUILD_TIMEOUT:-0}" \
+         "docker image inspect $(printf '%q' "$BASE_IMAGE") >/dev/null || docker pull --platform linux/arm64 $(printf '%q' "$BASE_IMAGE")
+-         cd $(printf '%q' "$WORKER_DIR") && docker build -t $(printf '%q' "$IMAGE") ."
++         cd $(printf '%q' "$WORKER_DIR") && docker build $buildf -t $(printf '%q' "$IMAGE") ."
+     fi
+   done
+   info "overlay image on all 3 nodes"
