@@ -274,8 +274,9 @@ class RecipeTest(unittest.TestCase):
         self.assertTrue(any("--check" in line for line in apply_lines))
         self.assertTrue(any("--check" not in line for line in apply_lines))
         joined = "\n".join(lines)
-        self.assertNotIn("docker", joined)
-        self.assertNotIn("clone", joined)
+        self.assertFalse(any(Path(argv[0]).name == "docker" for argv, _ in fake.calls))
+        self.assertFalse(any(len(argv) > 1 and argv[0] == "git" and argv[1] == "clone"
+                             for argv, _ in fake.calls))
 
         marker = json.loads((target / self.recipe.MARKER_NAME).read_text(encoding="utf-8"))
         self.assertEqual(marker["upstream_commit"], commit)
