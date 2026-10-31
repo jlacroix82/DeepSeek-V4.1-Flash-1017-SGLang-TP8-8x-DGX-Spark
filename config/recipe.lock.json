@@ -19,6 +19,7 @@
     "SPEC_ALGO": "DSPARK",
     "DSPARK_BLOCK_SIZE": 5,
     "SGLANG_ROCE_ALLREDUCE": 1,
-    "DSV41_CACHE_GIB": 0
+    "DSV41_CACHE_GIB": 0,
+    "EXTRA_SGLANG_ARGS": "--kv-cache-dtype fp8_e4m3 --page-size 256 --max-prefill-tokens 32768"
   }
 }

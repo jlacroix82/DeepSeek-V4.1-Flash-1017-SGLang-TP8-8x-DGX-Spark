@@ -73,8 +73,8 @@ REQUIRED_KEYS = (
 
 PATH_KEYS = ("WORKER_DIR", "MODEL_DIR", "ENGRAM_DIR", "WORKER_ENGRAM_DIR", "SSH_IDENTITY")
 
-# The exact measured TP8/EP8 profile. Render writes these last so an inherited
-# or user-edited value can never silently change the qualified profile.
+# Measured settings carried by this unqualified portable TP8/EP8 profile.
+# Render writes these last so inherited values cannot silently change the selected settings.
 CANONICAL_PROFILE = OrderedDict(
     (
         ("NNODES", "8"),
@@ -90,6 +90,7 @@ CANONICAL_PROFILE = OrderedDict(
         ("DSPARK_BLOCK_SIZE", "5"),
         ("SGLANG_ROCE_ALLREDUCE", "1"),
         ("DSV41_CACHE_GIB", "0"),
+        ("EXTRA_SGLANG_ARGS", "--kv-cache-dtype fp8_e4m3 --page-size 256 --max-prefill-tokens 32768"),
     )
 )
 
