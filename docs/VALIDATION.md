@@ -22,3 +22,17 @@ The public source/configuration and fixture check did not download weights, buil
 - Public repository promotion/forum posting were separate publication steps, not part of the original CPU/runtime validation above.
 
 GitHub Actions runs the CPU/metric/example-plan/checksum checks. Its remote run status is separate from the local results above and should be checked before review/promotion. Full binary/runtime equivalence remains explicitly unestablished; see PROVENANCE.md.
+
+## November 6 vLLM C16 and Hermes update
+
+The completed site tests are separate from the portable SGLang recipe:
+
+- Atomic C16: 80 timed waves, 1,280 exact reference text/token-ID matches; all 40 atomic waves formed the intended groups. Forty ramp and 128 warmup responses also matched.
+- Hermes pilot: 48 checked worker and six foreground attempts. Four separate resumed-session attempts passed after 20 seconds idle.
+- Hermes fleet comparison: 240 checked background and 15 foreground jobs, 765 streamed model calls, three blocks of five dispatch policies. The coach called the measured benchmark and recorded its decision.
+- The private audits verify source identities, tool/result associations, exactly one saved effect, native stream usage, sampled compute ownership, the clock cap and full cluster return. Their sanitized projections are in results/vllm-followup-audits.json.
+- `python3 tools/check_followup.py` checks the earlier 120 C8 CSV waves, then recomputes C16 rates/group counts and the Hermes task rates, native output rates, latencies, checked-state records and resume figures from exported observations. All three exported CSVs are checked against those observations. This export permits offline arithmetic and outcome-record checks; it cannot independently replay private raw streams or perform fresh inference.
+
+All eight ranks returned to compute idle after each window. No permanent route was promoted. The collected site runtime is not an exact frozen 1030 rebuild, and the checked tool fixtures do not establish held-out coding quality or sustained production task throughput.
+
+The publication update passed 40 CPU tests, both saved-result checkers, the safe example plan, local Markdown-target checks and the regenerated payload checksums. Applying each exported C8, C16 and streaming-coalescing patch to a temporary copy of the retained baseline reproduced every recorded candidate changed-file hash. No live service was started for these publication checks.

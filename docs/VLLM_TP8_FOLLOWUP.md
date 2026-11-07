@@ -30,8 +30,31 @@ The short prompts are from [Chris's pinned benchmark client](https://github.com/
 ## Other results from the follow-up
 
 - **Original 2K workload:** With 2,048 input tokens and 1,024 output tokens per request, a separate vLLM C8 screen averaged **361.54 code / 245.38 prose tok/s** over three waves. The historical SGLang medians were **286.97 / 174.95**. This compares two deployments with different serving and client settings. The 75/68-token C8 figures above belong to a different workload.
-- **C16:** Changing client release timing alone gave little repeatable benefit. The best medians were **583.44 code / 558.11 prose tok/s**, versus **804.63 / 753.59** in Chris's published C16 summary. That summary does not contain raw C16 wave records. **Atomic admission has only been measured at C8.**
+- **Earlier C16 client-timing screen:** Changing client release timing alone gave little repeatable benefit: **583.44 code / 558.11 prose tok/s**. The subsequent atomic C16 test is below.
 - **Engram:** In a separate warm test at 2 GiB KV per rank, device-resident Engram used about **24 GiB more memory per rank** and was **2.8% slower for code and 4.2% slower for prose at C16** than disk placement. Placement also changes how ranks combine table data. This result does not settle cold, long-context, or other Engram implementations.
 - **Clocks and fabric:** A separate C8 clock comparison gained **1.35% for code and 4.31% for prose** at stock clocks on the short prompts. The atomic experiment used the restored 2 GHz cap. In a separate fabric replay, both configured RoCE paths carried traffic on all eight ranks. The counters did not establish fabric latency as a cause of the remaining C16 gap.
 
-The follow-up covers short-batch throughput and exact output equivalence on these prompts. The atomic path has not been qualified for production deployment or as a replacement for the original SGLang recipe. No serving or host setup changes are part of this repository update.
+## Completed atomic C16 test
+
+The same-boot comparison covered four cells × two methods × ten repeats after correctness checks and C8/C12 ramps. Client order alternated; workload order rotated. Each wave produced 4,096 native output tokens, measured from first send to last completion including the 90 ms stagger. All **1,280 timed responses**, plus 40 ramp and 128 warmup responses, matched reference text and token IDs.
+
+| Workload | Release | Regular median tok/s (range) | Atomic median tok/s (range) | Intended groups, regular → atomic |
+|---|---|---:|---:|---:|
+| Code | All sixteen | 598.73 (581.50–735.48) | 728.27 (706.15–736.64) | 3/10 → 10/10 |
+| Code | 8+8, 90 ms | 668.35 (584.39–729.85) | **730.14** (722.19–733.66) | 5/10 → 10/10 |
+| Prose | All sixteen | 564.61 (549.49–691.89) | **688.96** (667.42–691.85) | 1/10 → 10/10 |
+| Prose | 8+8, 90 ms | 564.76 (549.31–656.92) | 655.11 (653.17–657.64) | 4/10 → 10/10 |
+
+Simultaneous-release medians improved 21.6% for code and 22.0% for prose. Atomic won seven of ten paired simultaneous code waves and nine of ten prose waves. Regular admission sometimes achieved the same groups and similar rates. This supports reliable grouping as the useful change; it does not demonstrate an independent kernel speedup.
+
+The best medians remain 9.3% below the published code C16 mean (804.63) and 8.6% below prose (753.59); none of our waves reached those means. The referenced publisher summary lacks raw C16 wave data. Our best code 8+8 and all-sixteen ranges overlap. The larger historical gain versus the earlier streaming client-timing screen also changes the API path, so it is not a paired engine-only result.
+
+Same official checkpoint, disk Engram, 10.5 GiB KV per rank and 2 GHz cap as C8; observed clocks stayed at 1,963–1,989 MHz. Sampled peak GPU temperature was 62 °C and minimum guarded available memory was 42.96 GiB. There were no prefix hits, preemptions or logged compile/capture events during timing. All eight ranks returned to idle.
+
+[All 80 timed waves](../results/vllm-atomic-c16.csv) · [Recomputed summary](../results/vllm-followup-summary.json) · [Source and image identities](../config/vllm-followup-identities.json)
+
+## From capped output to completed agent work
+
+The later [Hermes comparison](HERMES_BATCHING.md) uses standard streaming, real fixture tools, naturally finished responses and per-session context. Its idle coalescing mechanism is different from packed atomic admission. All 240 worker and 15 foreground jobs passed; a separate pilot and four context-resume attempts are also retained. Those results measure completed tool work and foreground latency. They are not a held-out coding campaign.
+
+The site runtime is derived from the pinned recipe; equivalence to Christopher's exact frozen 1030 build is unestablished. The admission paths and portable rebuild remain unqualified for production. [Experimental source patches](ADMISSION_PATCH.md) are provided for review. This publication does not change the serving recipe or apply any host setup.

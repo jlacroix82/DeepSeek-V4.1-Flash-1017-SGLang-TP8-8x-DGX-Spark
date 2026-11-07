@@ -1,0 +1,350 @@
+--- a/entrypoints/openai/chat_completion/batch_serving.py
++++ b/entrypoints/openai/chat_completion/batch_serving.py
+@@ -4,6 +4,7 @@
+ import asyncio
+ import time
+ from collections.abc import AsyncGenerator
++from contextlib import aclosing
+ from http import HTTPStatus
+ 
+ from fastapi import Request
+@@ -26,6 +27,7 @@
+ from vllm.tokenizers import TokenizerLike
+ from vllm.utils.async_utils import merge_async_iterators
+ from vllm.utils.collection_utils import as_list
++from vllm.v1.engine import ATOMIC_TEXT_BATCH_LIMIT
+ 
+ logger = init_logger(__name__)
+ 
+@@ -143,7 +145,11 @@
+         data_parallel_rank = self._get_data_parallel_rank(raw_request)
+         max_model_len = self.model_config.max_model_len
+ 
++        atomic = raw_request is not None and raw_request.headers.get("x-tp8-atomic-admission") == "1"
++        if atomic and not 1 <= len(engine_prompts) <= ATOMIC_TEXT_BATCH_LIMIT:
++            return self.create_error_response(f"Atomic admission requires one to {ATOMIC_TEXT_BATCH_LIMIT} prompts")
+         generators: list[AsyncGenerator[RequestOutput, None]] = []
++        calls = []
+         for i, engine_prompt in enumerate(engine_prompts):
+             sub_request_id = f"{request_id}_{i}"
+             max_tokens = get_max_tokens(
+@@ -172,19 +178,15 @@
+                 else await self._get_trace_headers(raw_request.headers)
+             )
+             session_id = self._get_session_id(single_request, raw_request)
+-            generators.append(
+-                self.engine_client.generate(
+-                    engine_prompt,
+-                    sampling_params,
+-                    sub_request_id,
+-                    lora_request=lora_request,
+-                    trace_headers=trace_headers,
+-                    priority=request.priority,
+-                    data_parallel_rank=data_parallel_rank,
+-                    session_id=session_id,
+-                    reasoning_ended=None,
+-                )
+-            )
++            kwargs = dict(lora_request=lora_request, trace_headers=trace_headers,
++                          priority=request.priority, data_parallel_rank=data_parallel_rank,
++                          session_id=session_id, reasoning_ended=None)
++            if atomic:
++                calls.append((engine_prompt, sampling_params, sub_request_id, kwargs))
++            else:
++                generators.append(self.engine_client.generate(
++                    engine_prompt, sampling_params, sub_request_id, **kwargs
++                ))
+ 
+         return await self.chat_completion_full_generator_batch(
+             request,  # type: ignore[arg-type]
+@@ -195,6 +197,7 @@
+             tokenizer,
+             request_metadata,
+             parser,
++            atomic_results=self.engine_client.generate_atomic_text_batch(calls) if atomic else None,
+         )
+ 
+     async def chat_completion_full_generator_batch(
+@@ -207,6 +210,7 @@
+         tokenizer: TokenizerLike,
+         request_metadata: RequestResponseMetadata,
+         parser: Parser | None = None,
++        atomic_results: AsyncGenerator[tuple[int, RequestOutput], None] | None = None,
+     ) -> ErrorResponse | ChatCompletionResponse:
+         """Handle batched (non-streaming) chat completions.
+ 
+@@ -220,8 +224,10 @@
+         created_time = int(time.time())
+         final_results: dict[int, RequestOutput] = {}
+         try:
+-            async for prompt_idx, res in merge_async_iterators(*generators):
+-                final_results[prompt_idx] = res
++            results = atomic_results if atomic_results is not None else merge_async_iterators(*generators)
++            async with aclosing(results):
++                async for prompt_idx, res in results:
++                    final_results[prompt_idx] = res
+         except asyncio.CancelledError:
+             return self.create_error_response("Client disconnected")
+ 
+@@ -229,7 +235,7 @@
+         total_prompt_tokens = 0
+         total_completion_tokens = 0
+ 
+-        for prompt_idx in range(len(generators)):
++        for prompt_idx in range(len(all_conversations)):
+             final_res = final_results.get(prompt_idx)
+             if final_res is None:
+                 return self.create_error_response(
+--- a/v1/engine/__init__.py
++++ b/v1/engine/__init__.py
+@@ -306,6 +306,30 @@
+     EXECUTOR_FAILED = b"\x04"
+     # Sentinel to wake up input_queue.get() during shutdown.
+     WAKEUP = b"\x05"
++    ADD_ATOMIC_TEXT_BATCH = b"\x06"
++
++
++ATOMIC_TEXT_BATCH_LIMIT = 16
++
++
++def validate_atomic_text_batch(requests: list[EngineCoreRequest]) -> None:
++    """Private TP8 experiment: bounded, greedy, plain text requests only."""
++    if not 1 <= len(requests) <= ATOMIC_TEXT_BATCH_LIMIT:
++        raise ValueError(f"Atomic admission requires one to {ATOMIC_TEXT_BATCH_LIMIT} requests")
++    if len({r.request_id for r in requests}) != len(requests):
++        raise ValueError("Atomic admission requires distinct request IDs")
++    for r in requests:
++        p = r.sampling_params
++        if (
++            p is None or p.n != 1 or p.temperature != 0
++            or not 1 <= (p.max_tokens or 0) <= 256
++            or p.structured_outputs is not None
++            or r.prompt_token_ids is None or not 1 <= len(r.prompt_token_ids) <= 2048
++            or r.mm_features or r.prompt_embeds is not None or r.lora_request is not None
++            or r.pooling_params is not None or r.resumable
++            or r.data_parallel_rank not in (None, 0)
++        ):
++            raise ValueError("Atomic admission is limited to short greedy text requests")
+ 
+ 
+ class ReconfigureDistributedRequest(msgspec.Struct):
+--- a/v1/engine/async_llm.py
++++ b/v1/engine/async_llm.py
+@@ -43,7 +43,9 @@
+ from vllm.usage.usage_lib import UsageContext
+ from vllm.utils.async_utils import cancel_task_threadsafe
+ from vllm.utils.collection_utils import as_list
+-from vllm.v1.engine import EngineCoreRequest, PauseMode
++from vllm.v1.engine import (
++    ATOMIC_TEXT_BATCH_LIMIT, EngineCoreRequest, PauseMode, validate_atomic_text_batch,
++)
+ from vllm.v1.engine.admission_control import SharedAdmissionStats
+ from vllm.v1.engine.core_client import EngineCoreClient
+ from vllm.v1.engine.exceptions import EngineDeadError, EngineGenerateError
+@@ -379,6 +381,7 @@
+         prompt_text: str | None = None,
+         reasoning_ended: bool | None = None,
+         reasoning_parser_kwargs: dict[str, Any] | None = None,
++        _deferred_atomic: list[EngineCoreRequest] | None = None,
+     ) -> RequestOutputCollector:
+         """Add new request to the AsyncLLM."""
+ 
+@@ -489,9 +492,21 @@
+         params = request.params
+ 
+         if is_pooling or params.n == 1:
+-            await self._add_request(request, prompt_text, None, 0, queue)
++            if _deferred_atomic is None:
++                await self._add_request(request, prompt_text, None, 0, queue)
++            else:
++                try:
++                    validate_atomic_text_batch([request])
++                except ValueError as e:
++                    raise VLLMValidationError(str(e)) from e
++                self.check_admission(request_id=request.request_id)
++                self.output_processor.add_request(request, prompt_text, None, 0, queue)
++                _deferred_atomic.append(request)
+             return queue
+ 
++        if _deferred_atomic is not None:
++            raise VLLMValidationError("Atomic admission requires one output per prompt")
++
+         parent_params = params
+         assert isinstance(parent_params, SamplingParams)
+ 
+@@ -529,6 +544,41 @@
+         if self.log_requests:
+             logger.info("Added request %s.", request.request_id)
+ 
++    async def generate_atomic_text_batch(self, calls):
++        """Register every collector, then submit one message before reading output."""
++        if self.vllm_config.parallel_config.data_parallel_size != 1:
++            raise VLLMValidationError("Atomic admission requires one engine core")
++        if not 1 <= len(calls) <= ATOMIC_TEXT_BATCH_LIMIT:
++            raise VLLMValidationError(f"Atomic admission requires one to {ATOMIC_TEXT_BATCH_LIMIT} prompts")
++        self.check_admission(len(calls))
++        pending: list[EngineCoreRequest] = []
++        queues: list[RequestOutputCollector] = []
++        finished = False
++        try:
++            for prompt, params, request_id, kwargs in calls:
++                queues.append(await self.add_request(
++                    request_id, prompt, params, _deferred_atomic=pending, **kwargs
++                ))
++            await self.engine_core.add_atomic_text_batch_async(pending)
++            # Each collector continues to receive outputs independently from the
++            # usual background handler. This HTTP endpoint returns them together.
++            for i, q in enumerate(queues):
++                while True:
++                    out = q.get_nowait() or await q.get()
++                    assert isinstance(out, RequestOutput)
++                    if out is not STREAM_FINISHED:
++                        yield i, out
++                    if out.finished:
++                        break
++            finished = True
++        finally:
++            try:
++                if pending and not finished:
++                    await self.abort([r.request_id for r in pending], internal=True)
++            finally:
++                for q in queues:
++                    q.close()
++
+     async def _add_streaming_input_request(
+         self,
+         request_id: str,
+--- a/v1/engine/core.py
++++ b/v1/engine/core.py
+@@ -65,6 +65,7 @@
+     EngineCoreReadyResponse,
+     EngineCoreRequest,
+     EngineCoreRequestType,
++    validate_atomic_text_batch,
+     FinishReason,
+     PauseMode,
+     ReconfigureDistributedRequest,
+@@ -579,6 +580,11 @@
+             )
+         else:
+             details = compute_iteration_details(scheduler_output)
++            new_reqs = scheduler_output.scheduled_new_reqs
++            if new_reqs:
++                rows = sum(scheduler_output.num_scheduled_tokens[r.req_id] for r in new_reqs)
++                logger.info("TP8_FRESH_PREFILL iteration=%d requests=%d rows=%d",
++                            iteration_index, len(new_reqs), rows)
+             iteration_details = SchedulerIterationDetails(
+                 iteration_index=iteration_index,
+                 num_ctx_requests=details.num_ctx_requests,
+@@ -1639,7 +1645,12 @@
+                 self._loop_watchdog.idle()
+             try:
+                 req = self.input_queue.get(block=block)
+-                self._handle_client_request(*req)
++                if block and self._is_tp8_background(req):
++                    messages = self._collect_tp8_background(req)
++                    for item in messages:
++                        self._handle_client_request(*item)
++                else:
++                    self._handle_client_request(*req)
+             except queue.Empty:
+                 break
+             if not block:
+@@ -1651,6 +1662,40 @@
+         # Handle any more client requests.
+         self._admit_arrivals()
+ 
++    @staticmethod
++    def _is_tp8_background(item):
++        kind, value = item
++        return kind == EngineCoreRequestType.ADD and value[0].request_id.startswith(
++            ("chatcmpl-tp8bg-", "tp8bg-")
++        )
++
++    def _collect_tp8_background(self, first):
++        """Bounded idle-only grouping of independent normal chat requests.
++
++        Preserve FIFO, including aborts. A foreground or control message ends
++        the collection immediately and is dispatched in the same loop turn.
++        The local test gateway owns the opt-in request ID prefix.
++        """
++        started = time.monotonic()
++        deadline = started + 0.012
++        pending = [first]
++        marked = 1
++        while marked < 8:
++            remaining = deadline - time.monotonic()
++            if remaining <= 0:
++                break
++            try:
++                item = self.input_queue.get(timeout=remaining)
++            except queue.Empty:
++                break
++            pending.append(item)
++            if not self._is_tp8_background(item):
++                break
++            marked += 1
++        logger.info("TP8_BG_IDLE_WINDOW background=%d interrupted=%d wait_us=%d",
++                    marked, int(len(pending) != marked), int((time.monotonic() - started)*1e6))
++        return pending
++
+     def _admit_arrivals(self) -> None:
+         """Handle every client request that has arrived, without blocking."""
+         while not self.input_queue.empty():
+@@ -1744,6 +1789,12 @@
+             )
+         if request_type == EngineCoreRequestType.WAKEUP:
+             return
++        elif request_type == EngineCoreRequestType.ADD_ATOMIC_TEXT_BATCH:
++            # One queue item, consumed by the scheduler's own thread. No model
++            # step can run between these ADDs, even when the engine was idle.
++            for item in request:
++                self._handle_client_request(EngineCoreRequestType.ADD, item)
++            logger.info("TP8_ATOMIC_ADMIT count=%d", len(request))
+         elif request_type == EngineCoreRequestType.ADD:
+             req, request_wave = request
+             received = self._add_received.pop(req.request_id, None)
+@@ -1916,6 +1967,7 @@
+         add_request_decoder = MsgpackDecoder(
+             EngineCoreRequest, oob_tensor_provider=self.tensor_ipc_receiver
+         )
++        atomic_decoder = MsgpackDecoder(list[EngineCoreRequest])
+         generic_decoder = MsgpackDecoder(oob_tensor_provider=self.tensor_ipc_receiver)
+ 
+         with ExitStack() as stack, zmq.Context() as ctx:
+@@ -1985,6 +2037,20 @@
+                         except Exception:
+                             self._handle_request_preproc_error(req)
+                             continue
++                    elif request_type == EngineCoreRequestType.ADD_ATOMIC_TEXT_BATCH:
++                        reqs = atomic_decoder.decode(data_frames)
++                        try:
++                            validate_atomic_text_batch(reqs)
++                            if self.vllm_config.parallel_config.data_parallel_size != 1:
++                                raise ValueError("Atomic admission requires one engine core")
++                            request = [self.preprocess_add_request(req) for req in reqs]
++                        except Exception:
++                            for req in reqs:
++                                self._handle_request_preproc_error(req)
++                            continue
++                        received = time.monotonic()
++                        for req, _ in request:
++                            self._add_received[req.request_id] = received
+                     elif request_type == EngineCoreRequestType.UTILITY:
+                         request = generic_decoder.decode(data_frames)
+                         client_idx, call_id, method, args = request
+--- a/v1/engine/core_client.py
++++ b/v1/engine/core_client.py
+@@ -1257,6 +1257,12 @@
+         await self._send_input(EngineCoreRequestType.ADD, request)
+         self._ensure_output_queue_task()
+ 
++    async def add_atomic_text_batch_async(self, requests: list[EngineCoreRequest]) -> None:
++        for request in requests:
++            request.client_index = self.client_index
++        await self._send_input(EngineCoreRequestType.ADD_ATOMIC_TEXT_BATCH, requests)
++        self._ensure_output_queue_task()
++
+     async def abort_requests_async(self, request_ids: list[str]) -> None:
+         if request_ids and not self.resources.engine_dead:
+             await self._send_input(EngineCoreRequestType.ABORT, request_ids)

@@ -1,8 +1,8 @@
 # DeepSeek V4.1 Flash on 8× DGX Spark — TP8 recipe and concurrency results
 
-**Public results and recipe repository. Main/foreground results independently reviewed; corrective soak separately validated. The portable source/configuration recipe is review-stage: a fresh rebuilt eight-node deployment is NOT yet qualified.**
+**Public results and recipe repository. Original SGLang main/foreground results independently reviewed; corrective soak separately validated. The portable source/configuration recipe is review-stage: a fresh rebuilt eight-node deployment is NOT yet qualified.**
 
-This is the **eight-node SGLang TP8/EP8 setup**, not the separate two-node EXL3/TensorFold configuration. The presentation follows that project's recipe/results layout, but the engines, checkpoint format, topology and measurements differ.
+This repository contains the **original eight-node SGLang TP8/EP8 study** and later **vLLM TP8 admission and Hermes experiments on the same cluster**. The portable deployment recipe remains the original SGLang recipe; experimental vLLM patches and measured identities are provided separately. This is separate from the two-node EXL3/TensorFold configuration.
 
 ## Latest results: vLLM TP8 batching on the same eight Sparks
 
@@ -16,9 +16,13 @@ This is the **eight-node SGLang TP8/EP8 setup**, not the separate two-node EXL3/
 
 Atomic admission formed the intended groups in all ten repeats per workload and pattern. All **960 timed responses** matched the local reference text and token IDs exactly. The all-eight medians were **18.9% above Chris's published code average** and **4.6% above his prose average**. These are aggregate completion rates for packed, non-streaming requests. The original SGLang results below use a different workload.
 
-**C16, separate test:** With client arrival timing alone, the best medians were **583.4 code / 558.1 prose tok/s**, below [Chris's published 804.6 / 753.6](https://github.com/christopherowen/spark-ds41f/blob/6c57fd2f/manifests/benchmarks/2026-10-30-spark-ds41f-1030-switched8.json). Atomic admission has only been measured at C8.
+**C16 atomic admission is now measured.** Across 80 timed waves, all **1,280 responses** matched the reference text and native token IDs. Best medians were **730.1 code tok/s** (8+8) and **689.0 prose tok/s** (all sixteen). For simultaneous release, regular → atomic was **598.7 → 728.3 code** and **564.6 → 689.0 prose tok/s** in the same boot. All 40 atomic waves formed the intended groups. The best medians remain 9.3% and 8.6% below [Chris's published C16 means](https://github.com/christopherowen/spark-ds41f/blob/6c57fd2f/manifests/benchmarks/2026-10-30-spark-ds41f-1030-switched8.json); these are whole-batch completion rates, not completed coding quality.
 
-[Full follow-up and methodology](docs/VLLM_TP8_FOLLOWUP.md) · [120 timed C8 waves](results/vllm-atomic-c8.csv) · [NVIDIA forum follow-up](https://forums.developer.nvidia.com/t/deepseek-v4-1-flash-on-8x-dgx-spark-tp8-ep8-concurrency-results/387537/9)
+**Hermes tool workflows:** A separate normal-streaming test compared five dispatch policies in three blocks. All **240 background jobs and 15 foreground jobs passed** their real tool/state checks. Up to sixteen coalesced background jobs reached **4,855 checked jobs per active hour**, 11% above regular dispatch at sixteen; eight coalesced jobs reached 3,859 and gave a faster first foreground tool call (**3.52 s**, versus **7.65 s** at sixteen). These rates extrapolate short fixture waves and exclude setup. They do not establish sustained production coding throughput.
+
+**Warm session context:** After 20 seconds idle, the same Hermes conversation reused **5,120 of about 5,480 prompt tokens**. Across two pairs, median time to its next usable tool call was **0.36 s**, versus **1.41 s** with a fresh cache namespace. Both arms kept the model loaded. Cache eviction, restart recovery and longer idle periods remain unqualified.
+
+[C8/C16 methodology](docs/VLLM_TP8_FOLLOWUP.md) · [Hermes results and dispatch policy](docs/HERMES_BATCHING.md) · [C8 CSV](results/vllm-atomic-c8.csv) · [C16 CSV](results/vllm-atomic-c16.csv) · [Hermes CSV](results/hermes-fleet-waves.csv) · [Offline summary and checker](results/vllm-followup-summary.json) · [Experimental patch/source identities](docs/ADMISSION_PATCH.md) · [NVIDIA forum thread](https://forums.developer.nvidia.com/t/deepseek-v4-1-flash-on-8x-dgx-spark-tp8-ep8-concurrency-results/387537/9)
 
 ## Recipe and quick start
 
@@ -35,15 +39,16 @@ cp config/tp8.env.example .env.tp8
 python3 tools/recipe.py plan --env-file .env.tp8
 python3 -m unittest discover -s tests -v
 python3 tools/check_results.py
+python3 tools/check_followup.py
 ```
 
 The plan is local-only. Source preparation is a separate, source-only Git fetch. Edit the example before rendering a runtime profile. Build/share/pack/serve remain behind explicit execution and unqualified-port acknowledgement gates; the saved serving results do not automatically qualify a newly rebuilt image. [Read the recipe before executing any serving action.](docs/RECIPE.md)
 
-## Hardware and serving configuration
+## Original SGLang hardware and serving configuration
 
 One shared model service spans eight DGX Spark/GB10 hosts over 200GbE RoCE. TP=8 and EP=8; official DeepSeek-V4.1-Flash-1017 weights; RoCEnante all-reduce and DSPARK speculation; FP8 E4M3 KV with 256-token pages; Radix prefix cache enabled and hierarchical offload disabled. Configured context is 1,048,576 tokens per request. The shared configured pool is 6,600,000 tokens (6,599,936 allocated); the backend's 32-request admission ceiling is **not a measured useful-agent concurrency recommendation**. DSPARK block size5 corresponds to six native configured speculative tokens.
 
-## Results
+## Original SGLang results
 
 A six-hour serving study of the official DeepSeek-V4.1-Flash-1017 checkpoint on one shared **SGLang TP8/EP8** service, with **RoCEnante and DSPARK**, connected over **200GbE RoCE**. The goal is a practical concurrency limit, not the largest configured request count.
 

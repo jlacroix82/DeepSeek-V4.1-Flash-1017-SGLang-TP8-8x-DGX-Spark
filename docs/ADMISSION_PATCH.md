@@ -1,0 +1,15 @@
+# Experimental admission patch and measured identities
+
+These changes were tested on the site's patched vLLM build derived from Christopher Owen's `spark-ds41f` work. They are review artifacts, not a qualified portable deployment. Start with the [recorded baseline source hashes and image identities](../config/vllm-followup-identities.json), not a current upstream vLLM checkout. The base vLLM tree was `fae1730260da3c8dbf4f8a5b58b4f4db53baf996`; equivalence to the frozen 1030 tree `ea1281f8…` is not established.
+
+- [Atomic C8 patch](../patches/vllm-atomic-c8.patch): the original measured eight-request revision from the C8 comparison.
+- [Atomic C16 patch](../patches/vllm-atomic-c16.patch): validated short, greedy text groups of up to sixteen on the private packed non-streaming Chat Completions batch route. Register normal per-request output collectors, then send one typed engine message; no scheduler step can interleave those registrations. The scheduler may still divide a group if its budgets require it. This revision also logs fresh prompt groups.
+- [Atomic plus streaming coalescing patch](../patches/vllm-atomic-and-streaming-coalescing.patch): adds an independent opt-in for normal streamed requests. A trusted local test gateway assigns `tp8bg-` request IDs to background jobs. When the engine is idle, the first marked request opens a maximum 12 ms collection window with at most eight marked members. A foreground/control message ends the window and all collected messages are dispatched in FIFO order. Busy-engine scheduling remains unchanged.
+
+The headers, request-ID marker and patches are experimental, private extensions. Standard clients do not gain these behaviors merely by using concurrency. The Hermes tests used the normal streaming API through the marked test gateway; they did not use the packed atomic endpoint. Using a sixteen-worker window does not mean the idle coalescer collected sixteen or that one GPU step handled sixteen fresh prompts.
+
+The baseline/candidate hashes cover every changed file; per-rank image IDs and actual arguments are recorded separately for C8, C16, the Hermes pilot and the fleet comparison. Image/kernel identities are evidence of the measured site builds, not distributable image references. The patch files normalize diff paths and omit timestamps; source hunks are unchanged. Therefore their file hashes differ from the retained original diff artifacts whose hashes appear in the runtime record.
+
+Apply only to the matching package source, after verifying those hashes, and rerun a CPU proof, prompt/tool gates and bounded model checks before timing. Do not apply broad platform setup or silently substitute a fresh build for the measured runtime. The original SGLang recipe in this repository remains separate and unchanged.
+
+The vLLM source modifications retain Apache-2.0 terms; the license text is included in [LICENSE.sglang](../LICENSE.sglang). Model, compiler, transport and other third-party components retain their own licenses. No weights or images are distributed here.

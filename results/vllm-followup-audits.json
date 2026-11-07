@@ -1,0 +1,436 @@
+{
+  "scope": "Projection of completed private audits. Recompute exported arithmetic with tools/check_followup.py; private raw-stream verification is not reproduced by the export.",
+  "atomic_c16": {
+    "owner": "native-20261107t002632z-9c7eff",
+    "exact_text_and_token_ids": {
+      "ramp": 40,
+      "timed": 1280,
+      "warmup": 128
+    },
+    "timed_waves": 80,
+    "timed_steps": 9588,
+    "timed_committed_atomic_groups": 60,
+    "maximum_timed_release_error_ms": 0.4548168182373047,
+    "sm_clock_mhz_range": [
+      1963,
+      1989
+    ],
+    "peak_sampled_gpu_c": 62,
+    "clock_event_masks": [
+      "0x0000000000000000"
+    ],
+    "minimum_sampled_available_gib_at_gates": 42.958553314208984,
+    "logged_compile_or_capture_during_timing": [],
+    "interior_full_c16_graph_buckets": {
+      "code/8+8/atomic": {
+        "windows": 40,
+        "steps": 844,
+        "modes": {
+          "FULL": 844
+        },
+        "padded_rows_histogram": {
+          "48": 307,
+          "40": 49,
+          "32": 305,
+          "56": 28,
+          "72": 14,
+          "80": 20,
+          "64": 118,
+          "96": 3
+        },
+        "mean_padded_rows": 45.58293838862559,
+        "mean_padding_rows": 0.0
+      },
+      "code/8+8/legacy": {
+        "windows": 43,
+        "steps": 821,
+        "modes": {
+          "FULL": 821
+        },
+        "padded_rows_histogram": {
+          "32": 192,
+          "40": 160,
+          "48": 267,
+          "56": 76,
+          "64": 91,
+          "72": 15,
+          "80": 13,
+          "96": 4,
+          "88": 3
+        },
+        "mean_padded_rows": 46.53836784409257,
+        "mean_padding_rows": 1.3227771010962242
+      },
+      "code/all/atomic": {
+        "windows": 40,
+        "steps": 859,
+        "modes": {
+          "FULL": 859
+        },
+        "padded_rows_histogram": {
+          "32": 355,
+          "48": 334,
+          "64": 140,
+          "80": 23,
+          "96": 7
+        },
+        "mean_padded_rows": 45.243306169965074,
+        "mean_padding_rows": 0.0
+      },
+      "code/all/legacy": {
+        "windows": 48,
+        "steps": 880,
+        "modes": {
+          "FULL": 880
+        },
+        "padded_rows_histogram": {
+          "32": 182,
+          "48": 296,
+          "64": 103,
+          "80": 14,
+          "96": 6,
+          "40": 168,
+          "56": 88,
+          "72": 20,
+          "88": 3
+        },
+        "mean_padded_rows": 47.35454545454545,
+        "mean_padding_rows": 1.9602272727272727
+      },
+      "prose/8+8/atomic": {
+        "windows": 45,
+        "steps": 1012,
+        "modes": {
+          "FULL": 1012
+        },
+        "padded_rows_histogram": {
+          "32": 468,
+          "24": 67,
+          "64": 66,
+          "48": 178,
+          "40": 168,
+          "56": 43,
+          "16": 15,
+          "80": 7
+        },
+        "mean_padded_rows": 38.81422924901186,
+        "mean_padding_rows": 0.0
+      },
+      "prose/8+8/legacy": {
+        "windows": 48,
+        "steps": 956,
+        "modes": {
+          "FULL": 956
+        },
+        "padded_rows_histogram": {
+          "32": 298,
+          "48": 189,
+          "40": 283,
+          "28": 28,
+          "56": 64,
+          "64": 44,
+          "80": 8,
+          "20": 3,
+          "72": 8,
+          "24": 25,
+          "16": 6
+        },
+        "mean_padded_rows": 40.88284518828452,
+        "mean_padding_rows": 1.7709205020920502
+      },
+      "prose/all/atomic": {
+        "windows": 43,
+        "steps": 992,
+        "modes": {
+          "FULL": 992
+        },
+        "padded_rows_histogram": {
+          "32": 573,
+          "48": 244,
+          "96": 20,
+          "16": 36,
+          "64": 92,
+          "80": 27
+        },
+        "mean_padded_rows": 40.91935483870968,
+        "mean_padding_rows": 0.0
+      },
+      "prose/all/legacy": {
+        "windows": 51,
+        "steps": 998,
+        "modes": {
+          "FULL": 998
+        },
+        "padded_rows_histogram": {
+          "32": 271,
+          "40": 317,
+          "72": 13,
+          "80": 10,
+          "48": 200,
+          "56": 77,
+          "28": 41,
+          "64": 40,
+          "24": 17,
+          "20": 3,
+          "16": 7,
+          "96": 2
+        },
+        "mean_padded_rows": 41.56312625250501,
+        "mean_padding_rows": 2.1042084168336674
+      }
+    }
+  },
+  "hermes_pilot": {
+    "owner": "native-20261107t020231z-79f21a",
+    "hermes": "2bd378ed1b8d6bf2192cb26e0a55ff3091e6bd19",
+    "calls": {
+      "valid_model_calls": 182,
+      "streamed_tool_calls": 120
+    },
+    "paired_output_checks": {
+      "paired_sessions": 27,
+      "exact_first_messages": 0,
+      "same_first_messages_after_normalizing_fixture_directory": 27,
+      "same_checked_outcome": 27,
+      "exact_text_tools_finish_and_output_count": 25,
+      "exact_text_tools_and_finish": 27
+    },
+    "matching_resume_requests_after_normalization": 2,
+    "fleet": {
+      "regular": {
+        "checked_workers": 24,
+        "checked_foregrounds": 3,
+        "worker_tasks_per_active_hour": {
+          "median": 3536.316247660149,
+          "range": [
+            3133.972257864711,
+            3677.5717179419935
+          ]
+        },
+        "first_usable_foreground_tool_s": {
+          "median": 4.859834671020508,
+          "range": [
+            4.3163535594940186,
+            5.25615668296814
+          ]
+        },
+        "foreground_checked_s": {
+          "median": 7.996734619140625,
+          "range": [
+            7.430185317993164,
+            9.346450328826904
+          ]
+        },
+        "idle_group_sizes": {}
+      },
+      "batched": {
+        "checked_workers": 24,
+        "checked_foregrounds": 3,
+        "worker_tasks_per_active_hour": {
+          "median": 3733.232771674174,
+          "range": [
+            3468.3914643818007,
+            3930.095036979431
+          ]
+        },
+        "first_usable_foreground_tool_s": {
+          "median": 4.001658201217651,
+          "range": [
+            3.761112928390503,
+            4.348724603652954
+          ]
+        },
+        "foreground_checked_s": {
+          "median": 7.126192331314087,
+          "range": [
+            7.025486707687378,
+            7.738668441772461
+          ]
+        },
+        "idle_group_sizes": {
+          "5": 2,
+          "6": 1
+        }
+      }
+    },
+    "resumes": [
+      {
+        "session": "idle-0-stable",
+        "role": "foreground",
+        "mode": "regular",
+        "cache": "stable",
+        "exit": 0,
+        "success": true,
+        "calls": 5,
+        "matched": true,
+        "agent_elapsed_s": 3.662720203399658,
+        "finished_epoch": 1794017706.2519672,
+        "resume": true,
+        "block": 0,
+        "first_prompt_cached_tokens": 0,
+        "resumed_prompt_tokens": 5478,
+        "resumed_cached_tokens": 5120,
+        "resume_first_tool_s": 0.3653743267059326,
+        "resume_checked_s": 0.6686906814575195,
+        "observed_idle_s": 20.01451086997986
+      },
+      {
+        "session": "idle-0-rotate",
+        "role": "foreground",
+        "mode": "regular",
+        "cache": "rotate",
+        "exit": 0,
+        "success": true,
+        "calls": 5,
+        "matched": true,
+        "agent_elapsed_s": 3.1443660259246826,
+        "finished_epoch": 1794017731.636178,
+        "resume": true,
+        "block": 0,
+        "first_prompt_cached_tokens": 0,
+        "resumed_prompt_tokens": 5478,
+        "resumed_cached_tokens": 0,
+        "resume_first_tool_s": 1.5390770435333252,
+        "resume_checked_s": 1.8363392353057861,
+        "observed_idle_s": 20.013591766357422
+      },
+      {
+        "session": "idle-1-rotate",
+        "role": "foreground",
+        "mode": "regular",
+        "cache": "rotate",
+        "exit": 0,
+        "success": true,
+        "calls": 5,
+        "matched": true,
+        "agent_elapsed_s": 2.754837989807129,
+        "finished_epoch": 1794017757.872537,
+        "resume": true,
+        "block": 1,
+        "first_prompt_cached_tokens": 0,
+        "resumed_prompt_tokens": 5481,
+        "resumed_cached_tokens": 0,
+        "resume_first_tool_s": 1.2841758728027344,
+        "resume_checked_s": 1.5795810222625732,
+        "observed_idle_s": 20.014292240142822
+      },
+      {
+        "session": "idle-1-stable",
+        "role": "foreground",
+        "mode": "regular",
+        "cache": "stable",
+        "exit": 0,
+        "success": true,
+        "calls": 5,
+        "matched": true,
+        "agent_elapsed_s": 2.7256133556365967,
+        "finished_epoch": 1794017783.7614496,
+        "resume": true,
+        "block": 1,
+        "first_prompt_cached_tokens": 0,
+        "resumed_prompt_tokens": 5481,
+        "resumed_cached_tokens": 5120,
+        "resume_first_tool_s": 0.34743356704711914,
+        "resume_checked_s": 0.6464354991912842,
+        "observed_idle_s": 20.01471710205078
+      }
+    ],
+    "sm_clock_mhz_range": [
+      1963,
+      1989
+    ],
+    "peak_sampled_gpu_c": 57,
+    "logged_compile_or_capture_during_trials": []
+  },
+  "hermes_fleet": {
+    "owner": "native-20261107t024051z-5a3e10",
+    "verified": true,
+    "task_outcomes": {
+      "checked_background": 240,
+      "checked_foreground": 15
+    },
+    "worker_and_foreground_streams": 765,
+    "coach_model_streams": 5,
+    "coach_tool_executions": 4,
+    "decision": {
+      "throughput_strategy": "coalesced16",
+      "interactive_strategy": "coalesced16"
+    },
+    "min_guarded_available_gib": 40.826446533203125,
+    "peak_gpu_mhz": 1989,
+    "peak_gpu_c": 62,
+    "prefill_batches": {
+      "regular8": [
+        {
+          "first": 1,
+          "max": 6
+        },
+        {
+          "first": 1,
+          "max": 6
+        },
+        {
+          "first": 1,
+          "max": 7
+        }
+      ],
+      "coalesced8": [
+        {
+          "first": 5,
+          "max": 5
+        },
+        {
+          "first": 5,
+          "max": 5
+        },
+        {
+          "first": 5,
+          "max": 6
+        }
+      ],
+      "coalesced15": [
+        {
+          "first": 5,
+          "max": 6
+        },
+        {
+          "first": 5,
+          "max": 7
+        },
+        {
+          "first": 5,
+          "max": 6
+        }
+      ],
+      "regular16": [
+        {
+          "first": 1,
+          "max": 6
+        },
+        {
+          "first": 1,
+          "max": 6
+        },
+        {
+          "first": 1,
+          "max": 6
+        }
+      ],
+      "coalesced16": [
+        {
+          "first": 5,
+          "max": 6
+        },
+        {
+          "first": 5,
+          "max": 6
+        },
+        {
+          "first": 6,
+          "max": 6
+        }
+      ]
+    },
+    "compile_during_timed_calls": []
+  }
+}

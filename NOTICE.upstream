@@ -45,3 +45,16 @@ Third-party components and their licences:
 - SGLang, FlashInfer, DeepGEMM, PyTorch, NVIDIA components and the DeepSeek model
   retain their respective upstream licences. This repository does not
   redistribute model weights.
+
+Additional experimental follow-up artifacts:
+
+- patches/vllm-atomic-c8.patch, patches/vllm-atomic-c16.patch and
+  patches/vllm-atomic-and-streaming-coalescing.patch modify vLLM source from the
+  site's Christopher Owen spark-ds41f-derived build. The modified vLLM source
+  retains its Apache-2.0 terms (license text in LICENSE.sglang). These patches
+  are review artifacts; the exact baseline file hashes, derived image
+  identities and qualification limits are in docs/ADMISSION_PATCH.md and
+  config/vllm-followup-identities.json. No vLLM image or model is distributed.
+- Hermes Agent was exercised at the recorded upstream commit. Its source is
+  not vendored; the published follow-up contains sanitized synthetic fixture
+  measurements and an offline arithmetic checker.
