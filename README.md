@@ -4,6 +4,8 @@
 
 This is the **eight-node SGLang TP8/EP8 setup**, not the separate two-node EXL3/TensorFold configuration. The presentation follows that project's recipe/results layout, but the engines, checkpoint format, topology and measurements differ.
 
+**November 6 follow-up:** [vLLM TP8 batching results](docs/VLLM_TP8_FOLLOWUP.md) on the same model and eight-node cluster. With Chris's short benchmark prompts, admitting all eight requests to the scheduler together reached **560.4 code / 501.4 prose tok/s** at the 2 GHz GPU cap. See the follow-up for the paired controls, [per-wave measurements](results/vllm-atomic-c8.csv), and the separate C16 result.
+
 ## Recipe and quick start
 
 - [Operator recipe and prerequisites](docs/RECIPE.md)
