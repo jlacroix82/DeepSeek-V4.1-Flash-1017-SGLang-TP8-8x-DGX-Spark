@@ -22,7 +22,7 @@ Atomic admission formed the intended groups in all ten repeats per workload and 
 
 **Warm session context:** After 20 seconds idle, the same Hermes conversation reused **5,120 of about 5,480 prompt tokens**. Across two pairs, median time to its next usable tool call was **0.36 s**, versus **1.41 s** with a fresh cache namespace. Both arms kept the model loaded. Cache eviction, restart recovery and longer idle periods remain unqualified.
 
-[C8/C16 methodology](docs/VLLM_TP8_FOLLOWUP.md) · [Hermes results and dispatch policy](docs/HERMES_BATCHING.md) · [C8 CSV](results/vllm-atomic-c8.csv) · [C16 CSV](results/vllm-atomic-c16.csv) · [Hermes CSV](results/hermes-fleet-waves.csv) · [Offline summary and checker](results/vllm-followup-summary.json) · [Experimental patch/source identities](docs/ADMISSION_PATCH.md) · [NVIDIA forum thread](https://forums.developer.nvidia.com/t/deepseek-v4-1-flash-on-8x-dgx-spark-tp8-ep8-concurrency-results/387537/9)
+[C8/C16 methodology](docs/VLLM_TP8_FOLLOWUP.md) · [Hermes results and dispatch policy](docs/HERMES_BATCHING.md) · [C8 CSV](results/vllm-atomic-c8.csv) · [C16 CSV](results/vllm-atomic-c16.csv) · [Hermes CSV](results/hermes-fleet-waves.csv) · [Offline summary and checker](results/vllm-followup-summary.json) · [Experimental patch/source identities](docs/ADMISSION_PATCH.md) · [Latest NVIDIA forum update](https://forums.developer.nvidia.com/t/deepseek-v4-1-flash-on-8x-dgx-spark-tp8-ep8-concurrency-results/387537/11)
 
 ## Recipe and quick start
 

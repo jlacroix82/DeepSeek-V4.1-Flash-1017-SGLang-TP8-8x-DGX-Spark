@@ -1,3 +1,7 @@
+Posted November 6, 2026: [NVIDIA forum reply](https://forums.developer.nvidia.com/t/deepseek-v4-1-flash-on-8x-dgx-spark-tp8-ep8-concurrency-results/387537/11).
+
+---
+
 Small follow-up: I have now tested atomic admission at **C16** on the same official 1017 checkpoint, with disk Engram, 10.5 GiB KV per rank and the 2 GHz cap unchanged.
 
 | C16, all requests released together | Code tok/s | Prose tok/s |
