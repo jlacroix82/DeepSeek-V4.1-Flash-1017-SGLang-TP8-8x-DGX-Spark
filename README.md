@@ -4,7 +4,21 @@
 
 This is the **eight-node SGLang TP8/EP8 setup**, not the separate two-node EXL3/TensorFold configuration. The presentation follows that project's recipe/results layout, but the engines, checkpoint format, topology and measurements differ.
 
-**November 6 follow-up:** [vLLM TP8 batching results](docs/VLLM_TP8_FOLLOWUP.md) on the same model and eight-node cluster. With Chris's short benchmark prompts, admitting all eight requests to the scheduler together reached **560.4 code / 501.4 prose tok/s** at the 2 GHz GPU cap. See the follow-up for the paired controls, [per-wave measurements](results/vllm-atomic-c8.csv), and the separate C16 result.
+## Latest results: vLLM TP8 batching on the same eight Sparks
+
+**November 6, 2026.** On the official DeepSeek-V4.1-Flash-1017 checkpoint, admitting the whole prompt group to the scheduler at once made the fast C8 result repeatable. These medians use [Chris's short prompts](https://github.com/christopherowen/spark-ds41f/blob/5f84eda602ace7ae97cd5d451f19ba8c0403f8ef/bin/spark#L3671-L3685), a 256-token output cap, disk-backed Engram, and a 2 GHz GPU cap. Regular and atomic admission ran in the same boot.
+
+| C8 release pattern | Code: regular → atomic | Prose: regular → atomic |
+|---|---:|---:|
+| All eight together | 424.3 → **560.4 tok/s** | 383.0 → **501.4 tok/s** |
+| 4+4 | 424.9 → **530.2 tok/s** | 478.1 → **483.6 tok/s** |
+| 1+7 | 422.7 → 422.0 tok/s | 380.9 → 382.1 tok/s |
+
+Atomic admission formed the intended groups in all ten repeats per workload and pattern. All **960 timed responses** matched the local reference text and token IDs exactly. The all-eight medians were **18.9% above Chris's published code average** and **4.6% above his prose average**. These are aggregate completion rates for packed, non-streaming requests. The original SGLang results below use a different workload.
+
+**C16, separate test:** With client arrival timing alone, the best medians were **583.4 code / 558.1 prose tok/s**, below [Chris's published 804.6 / 753.6](https://github.com/christopherowen/spark-ds41f/blob/6c57fd2f/manifests/benchmarks/2026-10-30-spark-ds41f-1030-switched8.json). Atomic admission has only been measured at C8.
+
+[Full follow-up and methodology](docs/VLLM_TP8_FOLLOWUP.md) · [120 timed C8 waves](results/vllm-atomic-c8.csv) · [NVIDIA forum follow-up](https://forums.developer.nvidia.com/t/deepseek-v4-1-flash-on-8x-dgx-spark-tp8-ep8-concurrency-results/387537/9)
 
 ## Recipe and quick start
 
